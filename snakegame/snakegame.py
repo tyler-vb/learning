@@ -65,7 +65,7 @@ def game_loop():
     snake_length = 1
     snake_speed = 10
 
-    with open(r'C:\Users\tyler\Documents\learning\snakegame\snake.json', 'r') as openfile:
+    with open(r'snakegame\snake.json', 'r') as openfile:
         json_data = json.load(openfile)
 
     high_score = json_data['highscore']
@@ -77,7 +77,7 @@ def game_loop():
             high_score += 1
 
             json_data['highscore'] = high_score
-            with open('snake.json', 'w') as outfile:
+            with open('snakegame\snake.json', 'w') as outfile:
                 json.dump(json_data, outfile)
 
         keystroke = False

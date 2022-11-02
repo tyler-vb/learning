@@ -95,7 +95,7 @@ while not game_close:
 
     # ball physics
     if pygame.Rect.colliderect(ball_rect, paddle_rect):
-        ball_xchange = 2 * ball_speed * (ball_x - paddle_x)/paddle_width
+        ball_xchange = 4 * ball_speed * (ball_x - paddle_x)/paddle_width
         ball_ychange = -ball_speed - ball_speed*abs((ball_x - paddle_x)/paddle_width)
         
         if keys[pygame.K_LEFT]:
