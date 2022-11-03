@@ -19,8 +19,8 @@ pygame.display.set_caption('pong by Buffa Deez Nutz')
 class Network():
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.host = '127.0.0.1'
-        self.port = 5555
+        self.host = '192.168.0.83'
+        self.port = 9999
         self.id = self.connect()
 
     def connect(self):
@@ -44,39 +44,69 @@ class Paddle():
         self.width = width
         self.height = height
         self.color = color
-        self.rect = (x, y, width, height)
+        self.rect = pygame.Rect(x, y, width, height)
         self.vel = 5
 
     def draw(self, screen):
-        rect = pygame.Rect(self.rect)
-        rect.center = (self.x, self.y)
-        pygame.draw.rect(screen, self.color, rect)
+
+        print(f'1st{type(self.rect)}')
+        self.rect.center = (self.x, self.y)
+        print(f'2nd{type(self.rect)}')
+        pygame.draw.rect(screen, self.color, self.rect)
+        print(f'3rd{type(self.rect)}')
   
     def move(self):
 
         keys = pygame.key.get_pressed()
-        
         if keys[pygame.K_UP]:
             self.y -= self.vel
 
         if keys[pygame.K_DOWN]:
             self.y += self.vel
 
-        self.rect = (self.x, self.y, self.width, self.height)
 
-def redrawWindow(screen, paddleA, paddleB):
+class Ball():
+    def __init__(self, x, y, width, height, color):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.color = color
+        self.rect = pygame.Rect(x, y, width, height)
+        self.xVel = 5
+        self.yVel = 5
+
+    def draw(self, screen):
+
+        self.rect.center = (self.x, self.y)
+        pygame.draw.rect(screen, self.color, self.rect)
+
+    def collide(self, paddleList, screenHeight, screenWidth):
+
+        for x in paddleList:
+            if self.rect.colliderect(x):
+                self.xVel = -self.xVel
+
+        if self.rect.top <= 0 or self.rect.bottom >= screenHeight:
+            self.yVel = -self.yVel
+
+        self.x += self.xVel
+        self.x += self.yVel
+
+def redrawWindow(screen, paddleA, paddleB, ball):
     screen.fill(white)
     paddleA.draw(screen)
     paddleB.draw(screen)
+    ball.draw(screen)
     pygame.display.update()
 
 def mainLoop():
 
     run = True
-    playersConnected = False
 
     paddleA = Paddle(width - width/10, height/2, 20, 100, black)
     paddleB = Paddle(width/10, height/2, 20, 100, black)
+    ball = Ball(width/2, height/2, 30, 30, black)
 
     clock = pygame.time.Clock()
 
@@ -91,16 +121,19 @@ def mainLoop():
             if event.type == pygame.QUIT:
                 run = False
                 pygame.quit
-        
         if player == 0:
             paddleA.move()
+            print(f'lol1{type(paddleA.rect)}')
             paddleB = n.send(paddleA)
         if player == 1:
             paddleB.move()
             paddleA = n.send(paddleB)
+        ball.collide([paddleA.rect, paddleB.rect], height, width)
+        print(f'lol2{type(paddleA.rect)}')
 
-        redrawWindow(screen, paddleA, paddleB)
-
+        redrawWindow(screen, paddleA, paddleB, ball)
+        'lol'
+    
     pygame.quit
     sys.exit
 
