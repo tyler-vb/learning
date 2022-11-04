@@ -30,10 +30,13 @@ class Paddle():
 
         self.rect = (self.x, self.y, self.width, self.height)
 
-host = '127.0.0.1'
-port = 5555
 
 
+
+
+
+host = '192.168.0.83'
+port = 9999
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -46,6 +49,8 @@ s.listen(2)
 print('server started, waiting for an connection...')
 
 serverData = [Paddle(0, 0, 0, 0, (0, 0, 0)), Paddle(0, 0, 0, 0, (0, 0, 0))]
+
+currentPlayer = 0
 
 def handleClient(conn, player):
     conn.send(pickle.dumps(player))
@@ -71,7 +76,6 @@ def handleClient(conn, player):
     print('connection lost')
     conn.close()
 
-currentPlayer = 0
 while True:
     conn, addr = s.accept()
 
