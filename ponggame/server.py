@@ -28,6 +28,7 @@ def handleClient(conn, player):
         try:
             data = pickle.loads(conn.recv(2048))
             serverData[player] = data
+
             if not serverData:
                 print('disconnected')
                 break
