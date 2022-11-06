@@ -4,6 +4,16 @@ import pickle
 import pygame
 from player import *
 
+pygame.init()
+
+height = 768
+width = 1366
+
+white = (255, 255, 255)
+black = (0, 0, 0)
+red = (255, 0, 0)
+blue = (0, 0, 255)
+
 host = '192.168.0.83'
 port = 9999
 
@@ -17,30 +27,58 @@ except socket.error as e:
 s.listen(2)
 print('server started, waiting for an connection...')
 
-serverData = [Paddle(0, 0, 0, 0, (0, 0, 0)), Paddle(0, 0, 0, 0, (0, 0, 0))]
-
-currentPlayer = 0
+gameData = [Paddle(width - width/10, height/2, 20, 100, black), Paddle(width/10, height/2, 20, 100, black), Ball(width/2, height/2, 30, 30, black)]
+currentPlayers = 0
 
 def handleClient(conn, player):
-    conn.send(pickle.dumps(player))
+    conn.send(pickle.dumps((gameData[player], player)))
+    timer = 3
+    pygame.time.set_timer(pygame.USEREVENT+1, 1000)
+    pause = False
     reply = ''
     while True:
         try:
             data = pickle.loads(conn.recv(2048))
-            serverData[player] = data
+            gameData[player] = data
 
-            if not serverData:
+            if not gameData:
                 print('disconnected')
                 break
+
             else:
+
                 if player == 0:
-                    reply = serverData[1]
-                elif player == 1:
-                    reply = serverData[0]
+
+                    if currentPlayers == 2:
+
+                        # gotta be a better way to do this
+                    
+                        if gameData[2].rect.left <= 0 or gameData[2].rect.right >= width:
+                            for event in pygame.event.get():
+                                if event.type == pygame.USEREVENT+1:
+                                    timer - 1
+                                    pause = True
+                                
+                                if timer <= 0:
+                                    pause = False
+
+                            gameData[2].gamePause(width, height, pause)
+
+                        else:
+                            gameData[2].gamePlay((gameData[0], gameData[1]), height)
+
+                    else:
+                        gameData[2].gameWaiting((gameData[0], gameData[1]), width, height)
+                        
+                    reply = (gameData[1], gameData[2])
+
+                else:
+                    reply = (gameData[0], gameData[2])
 
             conn.sendall(pickle.dumps(reply))
             
-        except:
+        except Exception as e:
+            print(e)
             break
 
     print('connection lost')
@@ -52,7 +90,7 @@ while True:
     print(f'connected to: {addr}')
     print(f'connections: {threading.active_count()}')
 
-    thread = threading.Thread(target=handleClient, args=(conn, currentPlayer))
+    thread = threading.Thread(target=handleClient, args=(conn, currentPlayers))
     thread.start()
 
-    currentPlayer += 1
+    currentPlayers += 1
