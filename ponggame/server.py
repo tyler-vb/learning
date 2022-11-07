@@ -1,10 +1,8 @@
 import socket
 import threading
 import pickle
-import pygame
-from player import *
-
-pygame.init()
+import time
+from game import *
 
 height = 768
 width = 1366
@@ -27,16 +25,45 @@ except socket.error as e:
 s.listen(2)
 print('server started, waiting for an connection...')
 
-gameData = [Paddle(width - width/10, height/2, 20, 100, black), Paddle(width/10, height/2, 20, 100, black), Ball(width/2, height/2, 30, 30, black)]
+gameData = [Paddle(width - width/10, height/2, 20, 100, black, height), Paddle(width/10, height/2, 20, 100, black, height), Ball(20, 20, black, width, height), ScoreBoard(black, width, height,)]
 currentPlayers = 0
+    
 
 def handleClient(conn, player):
     conn.send(pickle.dumps((gameData[player], player)))
-    timer = 3
-    pygame.time.set_timer(pygame.USEREVENT+1, 1000)
-    pause = False
+    gamePause = False
+    pScore = 0
+    p2Score = 0
     reply = ''
     while True:
+
+        while gamePause:
+
+            try:
+                data = pickle.loads(conn.recv(2048))
+                gameData[player] = data
+
+                if not gameData:
+                    print('disconnected')
+                    break
+
+                else:
+
+                    if time.time() - startTime >= 3:
+                        gamePause = False
+    
+                    if player == 0:
+                        reply = (gameData[1], gameData[2], gameData[3])
+
+                    else:
+                        reply = (gameData[0], gameData[2], gameData[3])
+        
+                conn.sendall(pickle.dumps(reply))
+
+            except Exception as e:
+                print(e)
+                break
+
         try:
             data = pickle.loads(conn.recv(2048))
             gameData[player] = data
@@ -51,29 +78,28 @@ def handleClient(conn, player):
 
                     if currentPlayers == 2:
 
-                        # gotta be a better way to do this
-                    
-                        if gameData[2].rect.left <= 0 or gameData[2].rect.right >= width:
-                            for event in pygame.event.get():
-                                if event.type == pygame.USEREVENT+1:
-                                    timer - 1
-                                    pause = True
-                                
-                                if timer <= 0:
-                                    pause = False
+                        if gameData[2].x <= 0:
+                            startTime = time.time()
+                            gameData[2].respawnBall()
+                            gameData[3].p2Score += 1
+                            gamePause = True
 
-                            gameData[2].gamePause(width, height, pause)
+                        elif gameData[2].x >= width:
+                            startTime = time.time()
+                            gameData[2].respawnBall()
+                            gameData[3].pScore += 1
+                            gamePause = True
 
                         else:
-                            gameData[2].gamePlay((gameData[0], gameData[1]), height)
+                            gameData[2].gamePlay((gameData[0], gameData[1]))
 
                     else:
-                        gameData[2].gameWaiting((gameData[0], gameData[1]), width, height)
+                        gameData[2].gameWaiting((gameData[0], gameData[1]))
                         
-                    reply = (gameData[1], gameData[2])
+                    reply = (gameData[1], gameData[2], gameData[3])
 
                 else:
-                    reply = (gameData[0], gameData[2])
+                    reply = (gameData[0], gameData[2], gameData[3])
 
             conn.sendall(pickle.dumps(reply))
             

@@ -1,9 +1,11 @@
 import sys
 import pygame
-from player import *
+from game import *
 from network import *
 
 pygame.init()
+
+font = pygame.font.Font('freesansbold.ttf', 64)
 
 height = 768
 width = 1366
@@ -16,11 +18,12 @@ blue = (0, 0, 255)
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption('pong by Buffa Deez Nutz')
 
-def redrawWindow(screen, paddleA, paddleB, ball):
+def redrawWindow(screen, paddleA, paddleB, ball, scoreboard):
     screen.fill(white)
     paddleA.draw(screen)
     paddleB.draw(screen)
     ball.draw(screen)
+    scoreboard.draw(screen, font) 
     pygame.display.update()
 
 def mainLoop():
@@ -42,12 +45,12 @@ def mainLoop():
                 run = False
                 pygame.quit
 
-        player.move(height)
+        player.move()
         data = n.send(player)
 
-        player2, ball = data[0], data[1]
+        player2, ball, scoreboard = data[0], data[1], data[2]
 
-        redrawWindow(screen, player, player2, ball)
+        redrawWindow(screen, player, player2, ball, scoreboard)
     
     pygame.quit
     sys.exit
