@@ -32,8 +32,7 @@ currentPlayers = 0
 def handleClient(conn, player):
     conn.send(pickle.dumps((gameData[player], player)))
     gamePause = False
-    pScore = 0
-    p2Score = 0
+    gameStart = False
     reply = ''
     while True:
 
@@ -78,7 +77,13 @@ def handleClient(conn, player):
 
                     if currentPlayers == 2:
 
-                        if gameData[2].x <= 0:
+                        if gameStart == False:
+                            startTime = time.time()
+                            gameData[2].respawnBall()
+                            gamePause = True
+                            gameStart = True
+
+                        elif gameData[2].x <= 0:
                             startTime = time.time()
                             gameData[2].respawnBall()
                             gameData[3].p2Score += 1
