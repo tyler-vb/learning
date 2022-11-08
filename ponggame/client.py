@@ -18,7 +18,7 @@ blue = (0, 0, 255)
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption('pong by Buffa Deez Nutz')
 
-def redrawWindow(screen, paddleA, paddleB, ball, scoreboard):
+def redrawWindow(paddleA, paddleB, ball, scoreboard):
     screen.fill(white)
     paddleA.draw(screen)
     paddleB.draw(screen)
@@ -50,7 +50,7 @@ def mainLoop():
 
         player2, ball, scoreboard = data[0], data[1], data[2]
 
-        redrawWindow(screen, player, player2, ball, scoreboard)
+        redrawWindow(player, player2, ball, scoreboard)
     
     pygame.quit
     sys.exit

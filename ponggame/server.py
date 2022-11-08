@@ -12,7 +12,7 @@ black = (0, 0, 0)
 red = (255, 0, 0)
 blue = (0, 0, 255)
 
-host = '192.168.0.83'
+host = '127.0.0.1'
 port = 9999
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

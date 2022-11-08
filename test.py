@@ -1,9 +1,11 @@
-def add(a, b):
-    print('YOOOOOO')
-    return((a, b), 'sick')
-
-data = add(2, 3)
-
-lol = data[0]
-
-lol2 = data[1]
+arr=[]
+x=0
+rows, cols=4,5
+for i in range(rows):
+    col = []
+    for j in range(cols):
+        col.append(x)
+        x += 1
+    arr.append(col)
+print(arr)
+print(arr[1][2])
