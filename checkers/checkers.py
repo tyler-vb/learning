@@ -14,9 +14,12 @@ screen = pygame.display.set_mode((screenSize, screenSize))
 pygame.display.set_caption('checkers by Bofa Deez Nuts')
 
 board = Board(spaces, screenSize)
-whitePieces = Piece(white, board.spaceList)
+whitePieces = Piece(white, spaces, board.spaceList)
 
-whitePieces.spawn(2,3)
+whitePieces.pieceList[3][4] = True
+whitePieces.pieceList[4][3] = True
+whitePieces.pieceList[2][3] = True
+whitePieces.pieceList[1][2] = True
 
 def redrawWindow():
     screen.fill(white)
@@ -38,8 +41,7 @@ def mainLoop():
                 pygame.quit()
                 run = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                print(mouseX, mouseY)
-                whitePieces.move(mouseX, mouseY)
+                whitePieces.playerMove(mouseX, mouseY)
 
         redrawWindow()
     
